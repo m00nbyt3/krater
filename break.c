@@ -5,10 +5,11 @@
 #include <time.h>
 
 void	safe_exit(int fd);
-void	devide(int fd, size_t cnum);
+void	devide(FILE *orig, size_t cnum, int fd);
 void	chkdir(char *name);
 char	*rdstring(size_t f1, int f2, int f3);
 int		getscs(size_t num);
+void	add_data(FILE *toread, FILE *towrite, size_t ndata);
 
 int	main(void)
 {
@@ -29,13 +30,12 @@ int	main(void)
 	cnum = ftell(file);
 	rewind(file);
 	printf("CNUM: %zu\n", cnum);
-	fclose(file);
 	chkdir("end");
-	devide(fd, cnum);
+	devide(file, cnum,fd);
 	safe_exit(fd);
 }
 
-void	devide(int fd, size_t cnum)
+void	devide(FILE *orig, size_t cnum, int fd)
 {
 	FILE	*nf1;
 	int		hex;
@@ -50,11 +50,12 @@ void	devide(int fd, size_t cnum)
 		nfname = rdstring(cnum, fd, hex);
 		snprintf(buf, sizeof(buf), "end/%s.m0", nfname);
 		nf1 = fopen(buf, "w");
-		fprintf(nf1, "%04x\n", hex);
+		fprintf(nf1, "%d\n", hex);
+		add_data(orig, nf1, cnum/scs);
 		fclose(nf1);
 		hex++;
 	}
-	fclose(nf1);
+	fclose(orig);
 }
 
 void	safe_exit(int fd)
@@ -106,4 +107,16 @@ int		getscs(size_t num)
 	srand(num * (unsigned int)(time(NULL)));
 	i = (rand() % (12 - 4 + 1)) + 4;
 	return(i);
+}
+
+void	add_data(FILE *toread, FILE *towrite, size_t ndata)
+{
+	int		i;
+	char	buf[ndata];
+
+	i = 0;
+
+	printf("%ld\n", ftell(toread));
+	fread(buf, sizeof(buf), 1, toread);
+	fwrite(buf, sizeof(buf), 1, towrite);
 }
