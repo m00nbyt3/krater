@@ -111,10 +111,7 @@ int		getscs(size_t num)
 
 void	add_data(FILE *toread, FILE *towrite, size_t ndata)
 {
-	int		i;
 	char	buf[ndata];
-
-	i = 0;
 
 	printf("%ld\n", ftell(toread));
 	fread(buf, sizeof(buf), 1, toread);
