@@ -4,6 +4,7 @@
 #include <string.h>
 
 void	rewrite(FILE *toread, FILE *towrite);
+void	getpos(char *fname, char *flist[12]);
 size_t	getflen(FILE *file);
 size_t	buflen(char *buf);
 
@@ -14,6 +15,9 @@ int	main(void)
 	FILE			*nf;
 	FILE			*wh;
 	char 			buf[200];
+	char			*files[12];
+	int				i;
+
 	d = opendir("end");
 	wh = fopen("end/white", "w");
 	while((dir = readdir(d)))
@@ -24,8 +28,11 @@ int	main(void)
 			continue;
 		snprintf(buf, sizeof(buf), "end/%s", dir->d_name);
 		printf("READING: %s\n", buf);
-		rewrite(fopen(buf, "r"), wh);
+		getpos(buf, files);
 	}
+	i = -1;
+	while(files[++i])
+		rewrite(fopen(files[i], "r"), wh);
 	closedir(d);
 	return(0);
 }
@@ -35,8 +42,8 @@ void	rewrite(FILE *toread, FILE *towrite)
 	char	*buf;
 	size_t	fsize;
 
-	fsize = getflen(toread);
-	buf = malloc(fsize - 40);
+	fsize = getflen(toread) - 2;
+	buf = malloc(fsize);
 	fseek(toread, 2L, SEEK_SET);
 	fread(buf, fsize, 1, toread);
 	fwrite(buf, fsize, 1, towrite);
@@ -52,4 +59,16 @@ size_t	getflen(FILE *file)
 	cnum = ftell(file);
 	rewind(file);
 	return(cnum);
+}
+
+void	getpos(char *fname, char *flist[12])
+{
+	char buf[1];
+	int pos;
+
+	FILE *file = fopen(fname, "r");
+	fread(buf, sizeof(buf), 1, file);
+	pos = atoi(buf);
+	flist[pos] = strdup(fname); 
+	fclose(file);
 }
