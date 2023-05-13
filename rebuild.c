@@ -7,6 +7,7 @@ void	rewrite(FILE *toread, FILE *towrite);
 void	getpos(char *fname, char *flist[12]);
 size_t	getflen(FILE *file);
 size_t	buflen(char *buf);
+void	arrzero(char *flist[12]);
 
 int	main(void)
 {
@@ -18,6 +19,7 @@ int	main(void)
 	char			*files[12];
 	int				i;
 
+	arrzero(files);
 	d = opendir("end");
 	wh = fopen("end/white", "w");
 	while((dir = readdir(d)))
@@ -31,7 +33,7 @@ int	main(void)
 		getpos(buf, files);
 	}
 	i = -1;
-	while(files[++i])
+	while(files[++i] && i < 12)
 		rewrite(fopen(files[i], "r"), wh);
 	closedir(d);
 	return(0);
@@ -71,4 +73,12 @@ void	getpos(char *fname, char *flist[12])
 	pos = atoi(buf);
 	flist[pos] = strdup(fname); 
 	fclose(file);
+}
+
+void	arrzero(char *flist[12])
+{
+	int i = -1;
+
+	while(++i < 12)
+		flist[i] = 0;
 }
